@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meter_screening_application", "Meter_screening_application.csproj", "{337335EE-1883-436A-A5D8-E3A1AD41EEB8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6DF89670-488C-4E2C-88A1-72E03BABCC1F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZigLibrary", "..\pcb-test-plugin\ZigLibrary.csproj", "{2EEE71C3-17E5-44F0-ACEC-8E9EADB89FF7}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "MeterScreeningAppV1.0.0", "..\MeterScreeningAppV1.0.0\MeterScreeningAppV1.0.0.vdproj", "{141872AA-9DE3-4C28-8222-174C7DF3ACE8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{337335EE-1883-436A-A5D8-E3A1AD41EEB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{337335EE-1883-436A-A5D8-E3A1AD41EEB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{337335EE-1883-436A-A5D8-E3A1AD41EEB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{337335EE-1883-436A-A5D8-E3A1AD41EEB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EEE71C3-17E5-44F0-ACEC-8E9EADB89FF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EEE71C3-17E5-44F0-ACEC-8E9EADB89FF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EEE71C3-17E5-44F0-ACEC-8E9EADB89FF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EEE71C3-17E5-44F0-ACEC-8E9EADB89FF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{141872AA-9DE3-4C28-8222-174C7DF3ACE8}.Debug|Any CPU.ActiveCfg = Debug
+		{141872AA-9DE3-4C28-8222-174C7DF3ACE8}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
