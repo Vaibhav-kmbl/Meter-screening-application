@@ -95,6 +95,11 @@ namespace Meter_screening_application
     0x48, 0x42, 0x10, 0x89, 0xE8, 0x03
 };
 
+        public byte[] RTCCheckCommand =
+        {
+         0x02 , 0x01 , 0x14 , 0x05 , 0x01 , 0x05 , 0x00 , 0x00 , 0x00 , 0x03 , 0x09, 0x00 , 0x00 , 0x00, 0x00 , 0x00 , 0x00, 0x00 , 0x00 , 0x00 , 0xE2,0x56 , 0x03
+        };
+
         public string[] valuess = { "Current", "Voltage", "PF" };
 
         public string MASTERMETER, METER1, METER2, JIG;
@@ -110,14 +115,15 @@ namespace Meter_screening_application
         public DateTime startTime;
         public bool jig_res_to_app = false, jig_response = false, master_meter_resp = false, meter_resp1 = false, meter_resp2 = false;
         public bool five_ampere = false, mili_ampere = false, app_to_be_started = false;
-        public string jig_start_resp_string = "243150484a49470b726423";
-    //  public string jig_start_resp_string = "181f32304a312f0b484017";
+       public string jig_start_resp_string = "243150484a49470b726423";
+    //  public string jig_start_resp_string = "181f32304a312f0b484017";             //for testing
         //{243150484a49470b726423}
 
         public string filepath = "C:\\Users\\VaibhavSinghal\\OneDrive - Sinhal Udyog pvt ltd\\Documents\\meter.txt";
 
-        public string MeterNotGivingResponse = "";
-        public byte[] meter_command_for_vi_check_second_firmware = { };
+        public string MeterNotGivingResponse = "020306050002838e03";
+       // public string MeterNotGivingResponse = "020306050002838e03";             //for testing
+        public byte[] meter_command_for_vi_check_second_firmware = {0x02,0x01,0x17,0x05,0x01 ,0x05,0x00,0x00,0x00,0x01,0x0C,0x00 , 0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0xFE,0xA6,0x03 };
 
         public bool ResponseMatchString(Byte[] resp1, string resp)
         {
@@ -143,11 +149,27 @@ namespace Meter_screening_application
             }
             byte[] subArray = new byte[length];
             for (int i = startIndex; i < (startIndex + length); i++)
-            {
+         
                 subArray[i] = byteArray[i];
-            }
+            
 
             return BitConverter.ToSingle(subArray, 0);
+        }
+        public void PrintResponse(Byte[] resp)
+        {
+            foreach (Byte b in resp) Console.Write(b + " ");
+        }
+        public bool ResponseMatch(Byte[] resp1, Byte[] resp2)
+        {
+            if (resp1.Length != resp2.Length) return false;
+            StringBuilder hex = new StringBuilder(resp1.Length * 2);
+            foreach (byte b in resp1)
+                hex.AppendFormat("{0:x2}", b);
+            string hex2 = BitConverter.ToString(resp2).Replace("-", "").ToLower();
+
+            Console.WriteLine(hex2.ToString() + "      " + hex.ToString());
+
+            return hex.ToString() == hex2.ToString();
         }
 
     }

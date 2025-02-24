@@ -32,6 +32,11 @@ namespace Meter_screening_application
         public double PFTOLERANCENEUTRAL5A = double.Parse(ConfigurationManager.AppSettings["neutral Pf tolerance 5A"]);
         public double PFTOLERANCEPHASE500mA = double.Parse(ConfigurationManager.AppSettings["phase Pf tolerance 500mA"]);
         public double VOLTAGETOLERANCE = double.Parse(ConfigurationManager.AppSettings["Voltage tolerance"]);
+        public int TIMEOUTOLDFIRMWARE = int.Parse(ConfigurationManager.AppSettings["timeout for old firmware command"]);
+        public int RETRIESOLDFIRMWARE = int.Parse(ConfigurationManager.AppSettings["retries for old firmware command"]);
+        public int RTCDRIFTTIME = int.Parse(ConfigurationManager.AppSettings["RTC drift time value"]);
+        public int RTCCHECKMAXRETRIES = int.Parse(ConfigurationManager.AppSettings["RTC check max retries"]);
+        public int RTCCHECKTIMOUT= int.Parse(ConfigurationManager.AppSettings["RTC check timeout"]);
 
 
 

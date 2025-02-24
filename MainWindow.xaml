@@ -214,8 +214,8 @@
                                    
 
                                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding CurrentNeutral}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding CurrentPhase}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding CurrentNeutral}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding CurrentPhase}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                        
                                     </StackPanel>
                                 </DataTemplate>
@@ -236,13 +236,13 @@
                                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                                         <StackPanel Orientation="Vertical">
-                                            <TextBlock Text="{Binding CurrentNeutralTolerance}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding CurrentNeutralTolerance}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Source={StaticResource ConfigValues}, Path=CurrentPhase5ATol}" FontSize="12" Foreground="Gray" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                         </StackPanel>
 
 
                                         <StackPanel Orientation="Vertical">
-                                            <TextBlock Text="{Binding CurrentPhaseTolerance}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding CurrentPhaseTolerance}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Source={StaticResource ConfigValues}, Path=CurrentNeutral5ATol}" FontSize="12" Foreground="Gray" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </StackPanel>
@@ -283,8 +283,8 @@
                                 <DataTemplate>
                                         
                                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                                            <TextBlock Text="{Binding PFNeutral}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding PFPhase}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding PFNeutral}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding PFPhase}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
 
                                     </StackPanel>
                                 </DataTemplate>
@@ -338,10 +338,104 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn> -->
+                     <!--   <DataGridTextColumn Header="RTC Drift" Binding="{Binding RTCCheck}" Width="*" FontSize="14">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="TextAlignment" Value="Center"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RTCCheck}" Value="False">
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding RTCCheck}" Value="True">
+                                            <Setter Property="Foreground" Value="Green"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>   -->
+
+                        <DataGridTemplateColumn Header="RTC Drift" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding RTCCheck}" FontSize="13" TextAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding RTCCheck}" Value="False">
+                                                            <Setter Property="Foreground" Value="Red"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding RTCCheck}" Value="True">
+                                                            <Setter Property="Foreground" Value="Green"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding RTCValue}" FontSize="12" TextAlignment="Center" Foreground="Gray"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+
+                        <DataGridTemplateColumn Header="Temper" Width="*"  >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <!-- TextBlock for CoverOpen -->
+                                        <TextBlock Text="{Binding CoverOpen}" FontSize="14" 
+                       HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                   
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Style.Triggers>
+                                                       
+                                                        <DataTrigger Binding="{Binding CoverOpen}" Value="True(C)">
+                                                            <Setter Property="Foreground" Value="Green"/>
+                                                        </DataTrigger>
+                                                       
+                                                        <DataTrigger Binding="{Binding CoverOpen}" Value="False(C)">
+                                                            <Setter Property="Foreground" Value="Red"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                       
+                                        <TextBlock Text="{Binding Magnet}" FontSize="14" 
+                       HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                   
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Style.Triggers>
+                                                      
+                                                        <DataTrigger Binding="{Binding Magnet}" Value="True(M)">
+                                                            <Setter Property="Foreground" Value="Green"/>
+                                                        </DataTrigger>
+                                                    
+                                                        <DataTrigger Binding="{Binding Magnet}" Value="False(M)">
+                                                            <Setter Property="Foreground" Value="Red"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+
+                        </DataGridTemplateColumn>
                         <DataGridTextColumn Header="Result" Binding="{Binding Result}" Width="*" FontSize="14" FontWeight="Bold">
                             <DataGridTextColumn.CellStyle>
                                 <Style TargetType="DataGridCell">
-                                    <!-- Default text properties -->
+                                   
                                     <Setter Property="Foreground" Value="White"/>
                                     <Setter Property="HorizontalContentAlignment" Value="Center"/>
                                     <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -441,8 +535,8 @@
 
 
                                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding CurrentNeutral}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding CurrentPhase}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding CurrentNeutral}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding CurrentPhase}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
 
                                     </StackPanel>
                                 </DataTemplate>
@@ -454,13 +548,13 @@
                                     <StackPanel Orientation="Vertical">
 
                                         <StackPanel Orientation="Vertical">
-                                            <TextBlock Text="{Binding CurrentNeutralTolerance}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding CurrentNeutralTolerance}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Source={StaticResource ConfigValues}, Path=CurrentNeutral500mATol}" FontSize="12" Foreground="Gray" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                         </StackPanel>
 
 
                                         <StackPanel Orientation="Vertical">
-                                            <TextBlock Text="{Binding CurrentPhaseTolerance}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding CurrentPhaseTolerance}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Source={StaticResource ConfigValues}, Path=CurrentPhase500mATol}" FontSize="12" Foreground="Gray" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </StackPanel>
@@ -538,8 +632,8 @@
                                 <DataTemplate>
 
                                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding PFNeutral}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding PFPhase}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding PFNeutral}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding PFPhase}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -551,13 +645,13 @@
                                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                                         <StackPanel Orientation="Vertical">
-                                            <TextBlock Text="{Binding PFNeutralTolerance}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding PFNeutralTolerance}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Source={StaticResource ConfigValues}, Path=PFNeutral500mATol}" FontSize="12" Foreground="Gray" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                         </StackPanel>
 
 
                                         <StackPanel Orientation="Vertical">
-                                            <TextBlock Text="{Binding PFPhaseTolerance}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding PFPhaseTolerance}" FontSize="13" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Source={StaticResource ConfigValues}, Path=PFPhase500MATol}" FontSize="12" Foreground="Gray" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </StackPanel>
@@ -574,6 +668,91 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn> -->
+                        <!--   <DataGridTemplateColumn Header="PF" Width="*">
+          <DataGridTemplateColumn.CellTemplate>
+              <DataTemplate>
+                  <StackPanel Orientation="Vertical">
+                      <TextBlock Text="{Binding PFNeutral}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                      <TextBlock Text="{Binding PFPhase}" FontSize="14" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                  </StackPanel>
+              </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+      </DataGridTemplateColumn> -->
+                        <DataGridTemplateColumn Header="RTC Drift" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding RTCCheck}" FontSize="14" TextAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding RTCCheck}" Value="False">
+                                                            <Setter Property="Foreground" Value="Red"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding RTCCheck}" Value="True">
+                                                            <Setter Property="Foreground" Value="Green"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding RTCValue}" FontSize="12" TextAlignment="Center" Foreground="Gray"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Temper" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                      
+                                        <TextBlock Text="{Binding CoverOpen}" FontSize="14" 
+                       HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                  
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Style.Triggers>
+                                                       
+                                                        <DataTrigger Binding="{Binding CoverOpen}" Value="True(C)">
+                                                            <Setter Property="Foreground" Value="Green"/>
+                                                        </DataTrigger>
+                                                        
+                                                        <DataTrigger Binding="{Binding CoverOpen}" Value="False(C)">
+                                                            <Setter Property="Foreground" Value="Red"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                       
+                                        <TextBlock Text="{Binding Magnet}" FontSize="14" 
+                       HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                   
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Style.Triggers>
+                                                       
+                                                        <DataTrigger Binding="{Binding Magnet}" Value="True(M)">
+                                                            <Setter Property="Foreground" Value="Green"/>
+                                                        </DataTrigger>
+                                                       
+                                                        <DataTrigger Binding="{Binding Magnet}" Value="False(M)">
+                                                            <Setter Property="Foreground" Value="Red"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+
+                        </DataGridTemplateColumn>
                         <DataGridTextColumn Header="Result" Binding="{Binding Result}" Width="*" FontSize="14" FontWeight="Bold">
                             <DataGridTextColumn.CellStyle>
                                 <Style TargetType="DataGridCell">
