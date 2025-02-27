@@ -38,6 +38,9 @@ namespace Meter_screening_application
         public int RTCCHECKMAXRETRIES = int.Parse(ConfigurationManager.AppSettings["RTC check max retries"]);
         public int RTCCHECKTIMOUT= int.Parse(ConfigurationManager.AppSettings["RTC check timeout"]);
 
+        public int METERNUMBERFETCHINGRETRY = int.Parse(ConfigurationManager.AppSettings["Retry for meter number fetching"]);
+
+        public int METERNUMBERFETCHINGTIMEOUT = int.Parse(ConfigurationManager.AppSettings["Timeout for meter number fetching"]);
 
 
 

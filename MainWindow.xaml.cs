@@ -29,6 +29,7 @@ using log4net;
 using System.Reflection;
 using System.Collections;
 using System.DirectoryServices.ActiveDirectory;
+using System;
 //using Newtonsoft.Json.Linq;
 
 namespace Meter_screening_application
@@ -82,8 +83,9 @@ namespace Meter_screening_application
              str = [Configcmd.MASTERMETER, Configcmd.METER1, Configcmd.METER2, Configcmd.JIG];
             //  str = ["COM13", "COM15", "COM14", "COM16"];
             // str = ["COM22", "COM24", "COM26", "COM21"]; 
-             // str = ["COM5", "COM7", "COM9", "COM11"];
-         //   str = ["COM29", "COM28", "COM27", "COM30"];
+            // str = ["COM5", "COM7", "COM9", "COM11"];
+            //   str = ["COM29", "COM28", "COM27", "COM30"];
+            str = ["COM31", "COM28", "COM27", "COM30"];
 
             Initial(str);
         }
@@ -92,10 +94,8 @@ namespace Meter_screening_application
             while (true)
             {
                 log.Info("-<---------------Process of testing being started------------->");
-                // await Task.Delay(1000);
-                DataIncoming();
-                //  app_to_be_started = true;
-             //   meter_authenticate[0] = 0;
+               
+                DataIncoming();           
                 if (app_to_be_started && jig.IsOpen)
                 {
                     int[] Values = { 0, 1, 2 };
@@ -140,11 +140,13 @@ namespace Meter_screening_application
                                                            CoverOpen[0].ToString() + "(C)", MagnetTemper[0].ToString() + "(M)",
 
                                                           "FAILED"
-                                                          );                                                    
+                                                          );     
+                           
                             Application.Current.Dispatcher.Invoke(() =>
                             {
                                 dataList.Add(masterr);
-                            });                        
+                            });
+                            cmd.MeterUnauthenticate(meter_authenticate);
                         }
                         if (Meter_firmware[1] == 1)
                         {
@@ -182,12 +184,12 @@ namespace Meter_screening_application
                     if (jig_res_to_app)
                     {
                         log.Info("<------------------testing for 500mA started-------------->");
-                        List<Task> tasks = new();
+                        List<Task> task = new();
                         foreach (int i in Values)
                         {
-                            tasks.Add(Task.Run(() => RunTaskAsync(i)));
+                            task.Add(Task.Run(() => RunTaskAsync(i)));
                         }
-                        await Task.WhenAll(tasks);
+                        await Task.WhenAll(task);
                         if (meter_result_data[0, 5] > 0 && Math.Abs(meter_result_data[0, 8]) <= 1&& CoverOpen[3] && RTCOutput[3] && MagnetTemper[3])
                         {
                             data masterr = new data("Master", Math.Round(meter_result_data[0, 5], 3).ToString(), "-",
@@ -217,6 +219,7 @@ namespace Meter_screening_application
                             {
                                 dataList2.Add(masterr);
                             });
+                            cmd.MeterUnauthenticate(meter_authenticate);
                         }
                        
                         if (Meter_firmware[1] == 1)
@@ -242,6 +245,14 @@ namespace Meter_screening_application
                         log.Info($"RTC Values are {RTCvalues[0]} , {RTCvalues[1]} , {RTCvalues[2]}");
 
                     }
+                  
+                    List<Task> meternum = new();
+                    foreach (int i in Values)
+                    {
+                        meternum.Add(Task.Run(() => MeterNumberFetching(i , "")));
+                    }
+                    await Task.WhenAll(meternum);
+
 
                     if (dataList2.Count == 3)
                         Dispatcher.Invoke(() =>
@@ -268,12 +279,13 @@ namespace Meter_screening_application
                             }
                         });
                     CloseJig(1);
-                    log.Info($"jig closed");
+                    log.Info($"<-----------jig closed--------------->");
                     await Task.Delay(Configcmd.DELAYAFTERCLOSINGJIG);
                     jig.DiscardInBuffer();
                     jig.DiscardOutBuffer();
-                    AppendDataGridToTextFile(DataGrid1, dataList, Configcmd.filepath);
-                    AppendDataGridToTextFile(DataGrid2, dataList2, Configcmd.filepath);
+                    AppendDataToFile appendDataToFile = new AppendDataToFile();
+                    appendDataToFile.AppendDataGridToTextFile(DataGrid1, dataList, Configcmd.filepath);
+                    appendDataToFile.AppendDataGridToTextFile(DataGrid2, dataList2, Configcmd.filepath);
                     app_to_be_started = false;
                     log.Info("---------------------------Test Completed---------------------------");
                 }
@@ -291,7 +303,7 @@ namespace Meter_screening_application
                     dataList.Add(daa);
 
                 });
-
+                
             }
             else
             {
@@ -435,7 +447,7 @@ namespace Meter_screening_application
             {
                 log.Info($"meter {i} not working/failed the test/incorrect output");
                 data daa;
-                //  daa = new data(i + "st Meter", "-", "-", "-", "-", "-", "-", "FAILED");
+
                 daa = new data(i + "st Meter", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-" , "-" , "-","-", "FAILED");
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -509,9 +521,6 @@ namespace Meter_screening_application
                     dataList.Add(daa);
 
                 });
-
-
-
             }
             else
             {
@@ -588,14 +597,17 @@ namespace Meter_screening_application
             bool flag = false;
             const int maxRetries = 2;
             int retryCount = 0;
-           
             try
             {
                 SingleMeterAuthenticate(i);
 
+               
+              
                 byte[] meter_test_response = new byte[70];
                 if (meter_authenticate[i] == 1)
                 {
+                   // log.Info($"meter number for meter {i} is --->>> {str}");
+                  
                     log.Info($"{i}th meter authenticated");
                     log.Info($"Test started on {i}th meter");
 
@@ -780,7 +792,7 @@ namespace Meter_screening_application
             {
                 serial[i].DiscardInBuffer();
                 serial[i].DiscardOutBuffer();
-                attempt++;
+               attempt++;
                 startTime = DateTime.Now;
                 try
                 {
@@ -817,6 +829,7 @@ namespace Meter_screening_application
                             log.Error($"Timeout: Unable to read auth response from master meter where recieved bytes are {bytee} and response string is -->> {cmd.PrintResponseString(buffer)}");
 
                         else log.Error($"Timeout: Unable to read auth response from meter {i} where recieved bytes are {bytee} and response string is -->> {cmd.PrintResponseString(buffer)}");
+                     //   attempt++;
                         break;
                     }
 
@@ -834,10 +847,12 @@ namespace Meter_screening_application
                 {
                     meter_authenticate[i] = 0;
                     log.Error($"Authentication failed for meter {i} on attempt {attempt}.");
+                   
                 }
                 if (!success && attempt <= maxRetries)
                 {
                     log.Error($"Retrying authentication for meter {i}...");
+                
                 }
             }
             if (!success)
@@ -850,6 +865,7 @@ namespace Meter_screening_application
                 log.Info($"Authentication succeeded for meter {i}.");
             }
         }
+
 
         private bool RTCCheckTest(int i)
         {
@@ -915,6 +931,96 @@ namespace Meter_screening_application
             return false;
         }
 
+        private async void MeterNumberFetching(int i , string str)
+        {
+            
+                MeterNumberFetch meterNumberFetch = new MeterNumberFetch();
+                byte[] buffer = new byte[25];
+                int retries = 0;
+                while (retries <= Configcmd.METERNUMBERFETCHINGRETRY)
+                {
+                    serial[i].DiscardInBuffer();
+                    serial[i].DiscardOutBuffer();
+                    log.Info($"attempt for meter {i}");
+                    try
+                    {
+                        serial[i].Write(cmd.meter_number_check_command, 0, cmd.meter_number_check_command.Length);
+                        log.Info($"meter number command written successfully for meter {i} with command --->>>>> {cmd.PrintResponseString(cmd.meter_number_check_command)}");
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"meter number command written unsuccesssful for meter {i}");
+                    }
+                  
+                    buffer = new byte[25];
+                    DateTime startTime = DateTime.Now;
+                    bool flag = false;
+                    int start = 0;
+                    while (true)
+                    {
+                        int byteee = serial[i].BytesToRead;
+                        if (byteee > 0)
+                        {
+                            serial[i].Read(buffer, start, Math.Min(byteee, 25- start));
+                            start  = start +  Math.Min(byteee, 25 - start);
+                           log.Info($"total bytes read by meter {i} on meter number command are {cmd.PrintResponseString(buffer)}");
+                            if (start == 25)
+                            {
+                                log.Info($"successfully {start} bytes recieved on meter number command are --->>> {buffer.ToString()}");
+                                flag = true;
+                                break;
+                            }
+                        }
+                        if ((DateTime.Now - startTime).TotalMilliseconds > Configcmd.METERNUMBERFETCHINGTIMEOUT)
+                        {
+                            log.Info($"Timeout for meter {i} not fetched successful response for meter number read command after retry {retries}");
+                            retries++;
+                            break;
+                        }
+                    }
+                    if (flag && meterNumberFetch.check(buffer))
+                    {
+
+                        str = meterNumberFetch.ConvertHexToAscii(buffer);
+                    log.Info($"meter number for meter {i} is {str}");
+                        if (i == 0)
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                Master_meter_num.Text = str;
+                            });
+
+                        }
+                       else if (i == 1)
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                Meter1num.Text = str;
+                            });
+
+                        }
+                      else  if (i == 2)
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                Meter2num.Text = str;
+                            });
+
+                        }
+                        log.Info($"meter number for meter {i} is {str}");
+                    //   return meterNumberFetch.ConvertHexToAscii(buffer);
+                    break;
+                       
+                    }
+                                       
+                    else retries++;
+                }
+       //     }
+          //  else log.Info($"Meter {i} not authenticated for meter number fetching");
+
+        //    return "";
+
+        }
         private async void Initial(string[] str)
         {
             try
@@ -988,7 +1094,9 @@ namespace Meter_screening_application
             {
                 //dataList = null;
                 //dataList2 = null;
-               
+                Master_meter_num.Text = "";
+                Meter1num.Text = "";
+                Meter2num.Text = "";
                 DataGrid1.ItemsSource = dataList;
                 DataGrid2.ItemsSource = dataList2;
                 Meter_second.Background = new SolidColorBrush(Colors.Orange);
@@ -1242,51 +1350,7 @@ namespace Meter_screening_application
         }
        
       
-        private void AppendDataGridToTextFile<T>(DataGrid dataGrid, ObservableCollection<T> dataCollection, string filePath)
-        {
-            try
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    using (StreamWriter writer = new StreamWriter(filePath, true, Encoding.UTF8))
-                    {
-                        writer.WriteLine($"--- Test Results ({DateTime.Now}) ---");
-                        writer.WriteLine($"DataGrid: {dataGrid.Name}");
-
-
-                        foreach (var column in dataGrid.Columns)
-                        {
-                            writer.Write(column.Header + "\t");
-                        }
-                        writer.WriteLine();
-
-
-                        foreach (var item in dataCollection)
-                        {
-                            foreach (var column in dataGrid.Columns)
-                            {
-                                var binding = (column as DataGridBoundColumn)?.Binding as Binding;
-                                if (binding != null)
-                                {
-                                    var propertyName = binding.Path.Path;
-                                    var propertyValue = item.GetType().GetProperty(propertyName)?.GetValue(item);
-                                    writer.Write(propertyValue + "\t");
-                                }
-                            }
-                            writer.WriteLine();
-                        }
-                        writer.WriteLine();
-                    }
-
-
-
-                });
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
+      
 
     }
 

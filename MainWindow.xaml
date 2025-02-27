@@ -44,7 +44,7 @@
                     <StackPanel Grid.Column="0" Orientation="Vertical" Grid.ColumnSpan="2" Margin="0,-24,41,35">
                         <TextBlock Name="Smart_meter" Text="Master Meter" FontSize="10px" Margin= "16, 5 ,20 ,0" FontFamily="Roboto"/>
                         <Border Padding="10" CornerRadius="5" Margin= "10 , 3 ,70 ,3" BorderBrush="DarkGray" BorderThickness="1">
-                            <TextBlock Text="PC434355646" FontSize="11px" FontWeight="Medium" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <TextBlock x:Name="Master_meter_num" Text="PC434355646" FontSize="11px" FontWeight="Medium" HorizontalAlignment="Left" VerticalAlignment="Center" />
                         </Border>
                  <!--       <TextBlock x:Name ="Optica" Text="Optical Number" FontSize="10px" FontWeight="Light" Margin= "15, 0 ,20 ,5" />
                     <TextBlock Name ="Optical_number" Text="4353553535" FontSize="11px" FontWeight="Medium" Margin= "15 , 0 ,20 ,8"/>  -->
@@ -68,7 +68,7 @@
                     <StackPanel Grid.Column="3" Orientation="Vertical" Margin="10,-24,-10,35">
                         <TextBlock Name="Meter2" Text="Meter 2" FontSize="10px" Margin= "16 , 5 ,20 ,0"  FontFamily="Roboto"/>
                         <Border Padding="10" CornerRadius="5" Margin= "10 , 3 ,12 ,3" BorderBrush="DarkGray" BorderThickness="1">
-                            <TextBlock Text="PC434355646" FontSize="11px" FontWeight="Medium" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <TextBlock x:Name="Meter2num" Text="PC434355646" FontSize="11px" FontWeight="Medium" HorizontalAlignment="Left" VerticalAlignment="Center" />
                         </Border>
                     <!--    <TextBlock x:Name="opt" Text="Optical Number" FontSize="10px" FontWeight="Light" Margin= "15, 0 ,20 ,5"/>
                         <TextBlock Name ="Optical_number2" Text="534534646" FontSize="11px" FontWeight="Medium" Margin= "15 , 0 ,20 ,8"/>
