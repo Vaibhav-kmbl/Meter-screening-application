@@ -19,10 +19,12 @@ namespace Meter_screening_application
         public int TIMEOUTCURRENTVOLTAGECOMMAND = int.Parse(ConfigurationManager.AppSettings["timeout_for_current_voltage_command"]);
         public string filepath = ConfigurationManager.AppSettings["file path"];
         public string  METER1 = ConfigurationManager.AppSettings["Meter 1"];
-           public string  METER2 = ConfigurationManager.AppSettings["Meter 2"];
+        public int JIGRETRY = int.Parse(ConfigurationManager.AppSettings["retry on jig"]);
+        public int MAXRETRYONTASK = int.Parse(ConfigurationManager.AppSettings["max retries on task running"]);
+           //public string  METER2 = ConfigurationManager.AppSettings["Meter 2"];
          public string   JIG = ConfigurationManager.AppSettings["Jig"];
         public int DELAYAFTERCLOSINGJIG = int.Parse(ConfigurationManager.AppSettings["delay on closing jig"]);
-        public int JIGONDELAY = int.Parse(ConfigurationManager.AppSettings["delay on jig on"]);
+        public int JIGONDELAY = int.Parse(ConfigurationManager.AppSettings["delay when jig on"]);
         public double CURRENTTOLERANCEPHASE5A = double.Parse(ConfigurationManager.AppSettings["phase Current tolerance 5A"]);
         public double CURRENTTOLERANCENEUTRAL5A = double.Parse(ConfigurationManager.AppSettings["neutral Current tolerance 5A"]);
         public double CURRENTTOLERANCENEUTRAL500mA = double.Parse(ConfigurationManager.AppSettings["neutral Current tolerance 500mA"]);

@@ -182,7 +182,7 @@ namespace Meter_screening_application
         {
             meter_auth[0] = 0;
             meter_auth[1] = 0;
-            meter_auth[2] = 0;
+          //  meter_auth[2] = 0;
         }
 
     }

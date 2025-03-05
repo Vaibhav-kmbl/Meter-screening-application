@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Collections;
 using System.DirectoryServices.ActiveDirectory;
 using System;
+using System.Diagnostics;
 //using Newtonsoft.Json.Linq;
 
 namespace Meter_screening_application
@@ -47,8 +48,9 @@ namespace Meter_screening_application
         public int[] meter_authenticate = [0, 0, 0];
         public int[] Meter_firmware = [0, 0, 0];
         string[] RTCvalues = new string[3];
+        BarcodeScannerService barcode = new BarcodeScannerService();
         // public int[] meter_authenticate = [1, 1, 1];
-
+      
         public double[,] meter_result_data = new double[3, 10];
         public double[,] meter_result_data2 = new double[3, 6];
         public double[,] tolerance = new double[2, 10];
@@ -58,6 +60,7 @@ namespace Meter_screening_application
         public bool[] CoverOpen = { false, false, false, false, false, false, false };
 
         public bool[] MagnetTemper = { false, false, false, false, false, false, false };
+        MeterData meter_1_data = new MeterData() ;
 
         Commands cmd;
         ConfigCommands Configcmd = new ConfigCommands();
@@ -65,41 +68,47 @@ namespace Meter_screening_application
         public DateTime startTime;
         public bool jig_res_to_app = false, jig_response = false, master_meter_resp = false, meter_resp1 = false, meter_resp2 = false;
         public bool five_ampere = false, mili_ampere = false, app_to_be_started = false;
-        public string filepath = "C:\\Users\\VaibhavSinghal\\OneDrive - Sinhal Udyog pvt ltd\\Documents\\meter.txt";
 
         public MainWindow()
         {
             InitializeComponent();
             cmd = new Commands();
             serial = new SerialPort[3];
-        
-          
+
+           
 
         }
         private void click_me(Object ob, EventArgs e)
         {
 
             string[] str = new string[4];
-             str = [Configcmd.MASTERMETER, Configcmd.METER1, Configcmd.METER2, Configcmd.JIG];
+            //str = [Configcmd.MASTERMETER, Configcmd.METER1, Configcmd.METER2, Configcmd.JIG];
+           str = [Configcmd.MASTERMETER, Configcmd.METER1, Configcmd.JIG];
             //  str = ["COM13", "COM15", "COM14", "COM16"];
             // str = ["COM22", "COM24", "COM26", "COM21"]; 
-            // str = ["COM5", "COM7", "COM9", "COM11"];
+             //str = ["COM31", "COM27", "COM30"];
+          //  str = ["COM31", "COM32", "COM33"];
+            hidden_gem.Focus();
+            strt_button.Visibility = Visibility.Collapsed;
             //   str = ["COM29", "COM28", "COM27", "COM30"];
-            str = ["COM31", "COM28", "COM27", "COM30"];
-
+            //  str = ["COM31", "COM28", "COM27", "COM30"];
+        
             Initial(str);
         }
+
         private async void MonitorAndProcess()
         {
             while (true)
             {
                 log.Info("-<---------------Process of testing being started------------->");
                
-                DataIncoming();           
+                DataIncoming();
+                FetchingSerialNumberFromScanner();
                 if (app_to_be_started && jig.IsOpen)
                 {
-                    int[] Values = { 0, 1, 2 };
-                    Jig(retry, cmd.jig_command_5A, cmd.jig_response_5A);
+                    //int[] Values = { 0, 1, 2 };
+                    int[] Values = { 0, 1 };
+                    Jig(Configcmd.JIGRETRY, cmd.jig_command_5A, cmd.jig_response_5A);
                     jig_response = jig_res_to_app;
                     await Task.Delay(Configcmd.delay);
                      //   jig_res_to_app = true;
@@ -158,32 +167,36 @@ namespace Meter_screening_application
                             log.Info($"meter 1 has new firmware");
                             PopulateDataNewFirmwareHighCurrent(1);
                         }
-                        if (Meter_firmware[2] == 1)
-                        {
-                            log.Info($"meter 2has old firmware");
-                            PopulateDataOldFirmwareHighCurrent(2);
-                        }
-                        else
-                        {
-                            log.Info($"meter 2 has new firmware");
-                            PopulateDataNewFirmwareHighCurrent(2);
-                        }
-                        log.Info($"RTC Values are {RTCvalues[0]} , {RTCvalues[1]} , {RTCvalues[2]}");
+                        //if (Meter_firmware[2] == 1)
+                        //{
+                        //    log.Info($"meter 2has old firmware");
+                        //    PopulateDataOldFirmwareHighCurrent(2);
+                        //}
+                        //else
+                        //{
+                        //    log.Info($"meter 2 has new firmware");
+                        //    PopulateDataNewFirmwareHighCurrent(2);
+                        //}
+                        //log.Info($"RTC Values are {RTCvalues[0]} , {RTCvalues[1]} , {RTCvalues[2]}");
+                        log.Info($"RTC Values are {RTCvalues[0]} , {RTCvalues[1]}");
+
                         RTCvalues = new string[3];                     
                         log.Info("          ");
                     }
-                    log.Info($"master meter --> {meter_authenticate[0]}   1st meter --> {meter_authenticate[1]}  2nd meter --> {meter_authenticate[2]}");
+                    // log.Info($"master meter --> {meter_authenticate[0]}   1st meter --> {meter_authenticate[1]}  2nd meter --> {meter_authenticate[2]}");
+                    log.Info($"master meter --> {meter_authenticate[0]}   1st meter --> {meter_authenticate[1]}");
                     mili_ampere = true;
                     five_ampere = false;
                     retry = 1;
-                    await Task.Run(() => Jig(retry, cmd.jig_command_500mA, cmd.jig_response_500mA));
+                    log.Info("<------------------testing for 500mA started-------------->");
+                    await Task.Run(() => Jig(Configcmd.JIGRETRY, cmd.jig_command_500mA, cmd.jig_response_500mA));
                     jig_response = jig_res_to_app;
                   //  jig_res_to_app = true;
                     await Task.Delay(Configcmd.delay);
                     Console.WriteLine();
                     if (jig_res_to_app)
                     {
-                        log.Info("<------------------testing for 500mA started-------------->");
+                       
                         List<Task> task = new();
                         foreach (int i in Values)
                         {
@@ -222,30 +235,42 @@ namespace Meter_screening_application
                             cmd.MeterUnauthenticate(meter_authenticate);
                         }
                        
-                        if (Meter_firmware[1] == 1)
+                        if (Meter_firmware[1] == 1 && dataList[1].Result != "FAILED")
                         {
                             log.Info($"meter 1 has old firmware");
                             PopulateDataOldFrmwareLowCurrent(1);
+                        }
+                        else if (dataList[1].Result == "FAILED")
+                        {
+                           data daa = new data(1 + "st Meter-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "FAILED");
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                dataList2.Add(daa);
+
+                            });
                         }
                         else
                         {
                             log.Info($"meter 1 has new firmware");
                             PopulateDataNewFirmwareLowCurrent(1);
                         }
-                        if (Meter_firmware[1] == 1)
-                        {
-                            log.Info($"meter 2 has old firmware");
-                            PopulateDataOldFrmwareLowCurrent(2);
-                        }
-                        else
-                        {
-                            log.Info($"meter 2 has new firmware");
-                            PopulateDataNewFirmwareLowCurrent(2);
-                        }
-                        log.Info($"RTC Values are {RTCvalues[0]} , {RTCvalues[1]} , {RTCvalues[2]}");
+                        
+                        //if (Meter_firmware[1] == 1)
+                        //{
+                        //    log.Info($"meter 2 has old firmware");
+                        //    PopulateDataOldFrmwareLowCurrent(2);
+                        //}
+                        //else
+                        //{
+                        //    log.Info($"meter 2 has new firmware");
+                        //    PopulateDataNewFirmwareLowCurrent(2);
+                        //}
+                        //log.Info($"RTC Values are {RTCvalues[0]} , {RTCvalues[1]} , {RTCvalues[2]}");
+                        log.Info($"RTC Values are {RTCvalues[0]} , {RTCvalues[1]}");
+
 
                     }
-                  
+
                     List<Task> meternum = new();
                     foreach (int i in Values)
                     {
@@ -253,39 +278,65 @@ namespace Meter_screening_application
                     }
                     await Task.WhenAll(meternum);
 
-
-                    if (dataList2.Count == 3)
+                    if (meter_1_data.MeterNumberFromScanner == meter_1_data.MeterNumberFromOptical)
+                    {
+                        
+                        meter_1_data.MeterNumberMatch = true;
                         Dispatcher.Invoke(() =>
                         {
-                            if (dataList2[1].Result == "FAILED")
+                            response_match.Visibility = Visibility.Visible;
+                            response_match.Background = new SolidColorBrush(Colors.Green);
+                            response_match.Content = "Matched";
+                        });
+                    }
+                    else
+                    {
+                        meter_1_data.MeterNumberMatch = false;
+                        dataList2[1].Result = "FAILED";
+                        Dispatcher.Invoke(() =>
+                        {
+                            response_match.Visibility = Visibility.Visible;
+                            response_match.Background = new SolidColorBrush(Colors.Red);
+                            response_match.Content = "Unmatched";
+                        });
+                        log.Info("meter number doesnt match for meter 1");
+
+                    }
+                    log.Info($"meter number fetched from optical is {meter_1_data.MeterNumberFromOptical} and meter number fetched from scanner --->>> {meter_1_data.MeterNumberFromScanner} and final result is ---->>> {meter_1_data.MeterNumberMatch}");
+                    if (dataList2.Count >1)
+                        Dispatcher.Invoke(() =>
+                        {
+                            hidden_gem.Text = "";
+                            if (dataList2[1].Result == "FAILED" || !meter_1_data.MeterNumberMatch)
                             {
                                 Meter_first.Content = "Failed";
                                 Meter_first.Background = new SolidColorBrush(Colors.Red);
                             }
+                            
                             else
                             {
                                 Meter_first.Content = "Passed";
                                 Meter_first.Background = new SolidColorBrush(Colors.Green);
                             }
-                            if (dataList2[2].Result == "FAILED")
-                            {
-                                Meter_second.Content = "Failed";
-                                Meter_second.Background = new SolidColorBrush(Colors.Red);
-                            }
-                            else
-                            {
-                                Meter_second.Content = "Passed";
-                                Meter_second.Background = new SolidColorBrush(Colors.Green);
-                            }
+                            //if (dataList2[2].Result == "FAILED")
+                            //{
+                            //    Meter_second.Content = "Failed";
+                            //    Meter_second.Background = new SolidColorBrush(Colors.Red);
+                            //}
+                            //else
+                            //{
+                            //    Meter_second.Content = "Passed";
+                            //    Meter_second.Background = new SolidColorBrush(Colors.Green);
+                            //}
                         });
                     CloseJig(1);
                     log.Info($"<-----------jig closed--------------->");
                     await Task.Delay(Configcmd.DELAYAFTERCLOSINGJIG);
                     jig.DiscardInBuffer();
                     jig.DiscardOutBuffer();
-                    AppendDataToFile appendDataToFile = new AppendDataToFile();
-                    appendDataToFile.AppendDataGridToTextFile(DataGrid1, dataList, Configcmd.filepath);
-                    appendDataToFile.AppendDataGridToTextFile(DataGrid2, dataList2, Configcmd.filepath);
+                 
+                  AppendDataGridToTextFile(DataGrid1, dataList, Configcmd.filepath);
+                  AppendDataGridToTextFile(DataGrid2, dataList2, Configcmd.filepath);
                     app_to_be_started = false;
                     log.Info("---------------------------Test Completed---------------------------");
                 }
@@ -357,7 +408,7 @@ namespace Meter_screening_application
         }
         private void PopulateDataNewFirmwareLowCurrent(int i)
         {
-            if (meter_authenticate[i] == 0 || dataList[i].Result == "FAILED" || meter_authenticate[0] == 0)
+            if (meter_authenticate[i] == 0  || meter_authenticate[0] == 0)
             {
                 log.Info($"meter {i} not working/failed the test/incorrect output");
                 data daa;
@@ -443,7 +494,7 @@ namespace Meter_screening_application
         }
         private void PopulateDataOldFrmwareLowCurrent(int i)
         {
-            if (meter_authenticate[i] == 0 || dataList[i].Result == "FAILED" || meter_authenticate[0] == 0)
+            if (meter_authenticate[i] == 0  || meter_authenticate[0] == 0)
             {
                 log.Info($"meter {i} not working/failed the test/incorrect output");
                 data daa;
@@ -595,7 +646,7 @@ namespace Meter_screening_application
         private async Task RunTaskAsync(int i)
         {
             bool flag = false;
-            const int maxRetries = 2;
+             int maxRetries = Configcmd.MAXRETRYONTASK;
             int retryCount = 0;
             try
             {
@@ -931,12 +982,14 @@ namespace Meter_screening_application
             return false;
         }
 
-        private async void MeterNumberFetching(int i , string str)
+        private async void MeterNumberFetching(int i, string str)
         {
-            
-                MeterNumberFetch meterNumberFetch = new MeterNumberFetch();
-                byte[] buffer = new byte[25];
-                int retries = 0;
+
+            MeterNumberFetch meterNumberFetch = new MeterNumberFetch();
+            byte[] buffer = new byte[25];
+            int retries = 0;
+            if (serial[i].IsOpen)
+            {
                 while (retries <= Configcmd.METERNUMBERFETCHINGRETRY)
                 {
                     serial[i].DiscardInBuffer();
@@ -951,7 +1004,7 @@ namespace Meter_screening_application
                     {
                         log.Error($"meter number command written unsuccesssful for meter {i}");
                     }
-                  
+
                     buffer = new byte[25];
                     DateTime startTime = DateTime.Now;
                     bool flag = false;
@@ -961,9 +1014,9 @@ namespace Meter_screening_application
                         int byteee = serial[i].BytesToRead;
                         if (byteee > 0)
                         {
-                            serial[i].Read(buffer, start, Math.Min(byteee, 25- start));
-                            start  = start +  Math.Min(byteee, 25 - start);
-                           log.Info($"total bytes read by meter {i} on meter number command are {cmd.PrintResponseString(buffer)}");
+                            serial[i].Read(buffer, start, Math.Min(byteee, 25 - start));
+                            start = start + Math.Min(byteee, 25 - start);
+                            log.Info($"total bytes read by meter {i} on meter number command are {cmd.PrintResponseString(buffer)}");
                             if (start == 25)
                             {
                                 log.Info($"successfully {start} bytes recieved on meter number command are --->>> {buffer.ToString()}");
@@ -982,44 +1035,56 @@ namespace Meter_screening_application
                     {
 
                         str = meterNumberFetch.ConvertHexToAscii(buffer);
-                    log.Info($"meter number for meter {i} is {str}");
-                        if (i == 0)
+                        log.Info($"meter number for meter {i} is {str}");
+                        //if (i == 0)
+                        //{
+                        //    Dispatcher.Invoke(() =>
+                        //    {
+                        //        Master_meter_num.Text = str;
+                        //    });
+
+                        //}
+                         if (i == 1)
                         {
                             Dispatcher.Invoke(() =>
                             {
                                 Master_meter_num.Text = str;
+                                meter_1_data.MeterNumberFromOptical = str;
+                               //  Meter1num.Text = str;
                             });
 
                         }
-                       else if (i == 1)
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                Meter1num.Text = str;
-                            });
+                        //else  if (i == 2)
+                        //  {
+                        //      Dispatcher.Invoke(() =>
+                        //      {
+                        //          Meter2num.Text = str;
+                        //      });
 
-                        }
-                      else  if (i == 2)
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                Meter2num.Text = str;
-                            });
-
-                        }
+                        //  }
                         log.Info($"meter number for meter {i} is {str}");
-                    //   return meterNumberFetch.ConvertHexToAscii(buffer);
-                    break;
-                       
+                        //   return meterNumberFetch.ConvertHexToAscii(buffer);
+                        break;
+
                     }
-                                       
+
                     else retries++;
                 }
-       //     }
-          //  else log.Info($"Meter {i} not authenticated for meter number fetching");
+                //     }
+                //  else log.Info($"Meter {i} not authenticated for meter number fetching");
 
-        //    return "";
+                //    return "";
 
+            }
+            else
+            {
+                log.Info($"port {serial[i]} is not opened for meter 1");
+                //Dispatcher.Invoke(() =>
+                //{
+                //    meter_1_data.MeterNumberFromOptical = "-";
+                //    Meter1num.Text = "-";
+                //});
+            }
         }
         private async void Initial(string[] str)
         {
@@ -1035,7 +1100,7 @@ namespace Meter_screening_application
         }
         private void InitializeSerialPorts(string[] str)
         {
-            for (int i = 0; i <= 2; i++)
+            for (int i = 0; i <= 1; i++)
             {
                 const int maxtry = 2;
                 int rety = 0;
@@ -1059,7 +1124,7 @@ namespace Meter_screening_application
                 }
 
             }
-            jig = new SerialPort(str[3], 9600, Parity.None, 8);
+            jig = new SerialPort(str[2], 9600, Parity.None, 8);
             const int maxtry2 = 2;
             int rety2 = 0;
             while (maxtry2 >= rety2)
@@ -1067,12 +1132,12 @@ namespace Meter_screening_application
                 try
                 {
                     jig.Open();
-                    log.Info($"jig opened with port number {str[3]}");
+                    log.Info($"jig opened with port number {str[2]}");
                     break;
                 }
                 catch (Exception ex)
                 {
-                    log.Error($"jig failed to open with port number {str[3]}");
+                    log.Error($"jig failed to open with port number {str[2]}");
 
                     rety2++;
                 }
@@ -1090,22 +1155,28 @@ namespace Meter_screening_application
                 dataList?.Clear();
 
             });
+            
             Application.Current.Dispatcher.Invoke(() =>
             {
+                hidden_gem.Focus();
                 //dataList = null;
+                
                 //dataList2 = null;
-                Master_meter_num.Text = "";
-                Meter1num.Text = "";
-                Meter2num.Text = "";
+                Master_meter_num.Text = "-";
+               // Meter1num.Text = "";
+             //   Meter2num.Text = "";
                 DataGrid1.ItemsSource = dataList;
                 DataGrid2.ItemsSource = dataList2;
-                Meter_second.Background = new SolidColorBrush(Colors.Orange);
+               // Meter_second.Background = new SolidColorBrush(Colors.Orange);
                 Meter_first.Background = new SolidColorBrush(Colors.Orange);
                 Meter_first.Content = "Inprogress";
-                Meter_second.Content = "Inprogress";
+                //    Meter_second.Content = "Inprogress";
+                response_match.Visibility = Visibility.Hidden;
                 meter_authenticate[0] = 0;
+                meter_1_data = new MeterData();
                 meter_authenticate[1] = 0;
-                meter_authenticate[2] = 0;
+                //  meter_authenticate[2] = 0;
+                Meter1num.Focus();
                 meter_result_data = new double[3, 10];
                 meter_result_data2 = new double[3, 10];
                 tolerance = new double[3, 10];
@@ -1124,88 +1195,87 @@ namespace Meter_screening_application
                 parent.Content = new MainWindow();
             }
         }
-        private void Jig(int retry, Byte[] jig_command, Byte[] jig_response)
-
+        private void Jig(int retry , byte[] jig_command , byte[] jig_response
+            )
         {
             if (jig.IsOpen)
             {
                 jig.DiscardInBuffer();
                 jig.DiscardOutBuffer();
-
-                Byte[] jig_res = new Byte[12];
-
-                try
+                int retries = 0;
+                byte[] jig_res = new byte[12];
+                while (retries <= retry)
                 {
-                    jig.Write(jig_command, 0, jig_command.Length);
-                }
-                catch
-                {
-                    log.Info($"jig failed to write {cmd.PrintResponseString(jig_command)}");
-
-                }
-
-                startTime = DateTime.Now;
-                while (true)
-                {
-
-                    if ((DateTime.Now - startTime).TotalMilliseconds > timeout)
+                    try
                     {
+                        jig.Write(jig_command, 0, jig_command.Length);
+                    }
+                    catch
+                    {
+                        log.Info($"jig failed to write {cmd.PrintResponseString(jig_command)}");
 
-                        log.Info($"jig failed to read for command {cmd.PrintResponseString(jig_command)}");
-
-
-                        if (retry == 1)
+                    }
+                    startTime = DateTime.Now;
+                    jig_res = new byte[12];
+                    int start = 0;
+                    while (true)
+                    {
+                        if (!jig.IsOpen) log.Info($"jig port is closed");
+                       
+                        int bytee = jig.BytesToRead;
+                        jig.Read(jig_res, start, Math.Min(12 - start, bytee));
+                        start += Math.Min(12 - start, bytee);
+                        if ((DateTime.Now - startTime).TotalMilliseconds > timeout)
                         {
-                            retry = 0;
-                            Jig(retry, jig_command, jig_response);
+
+                            log.Info($"jig failed to read for command {cmd.PrintResponseString(jig_command)}");
+                            retries++;
+                            break;
                         }
-                        jig_res_to_app = false;
+
+                        if (start >= 12)
+                        {
+
+                            log.Info($" Response read by jig for command {cmd.PrintResponseString(jig_command)} is {cmd.PrintResponseString(jig_res)}");
+                            cmd.PrintResponse(jig_res);
+
+                            break;
+
+                        }
+                    }
+                    if (cmd.ResponseMatch(jig_res, jig_response))
+                    {
+
+
+                        log.Info("Jig fetched successful response");
+
+                        cmd.PrintResponse(jig_response);
+
+                        jig_res_to_app = true;
                         break;
                     }
-                    int bytee = jig.BytesToRead;
-                    if (bytee == 12)
-                    {
-                        jig.Read(jig_res, 0, 12);
-                        log.Info($" Response read by jig for command {cmd.PrintResponseString(jig_command)} is {cmd.PrintResponseString(jig_res)}");
-                        cmd.PrintResponse(jig_res);
+                    else log.Info($"jig going for retry");
 
-                        break;
 
-                    }
                 }
 
-
-                if (cmd.ResponseMatch(jig_res, jig_response))
-                {
-
-
-                    log.Info("Jig fetched successful response");
-
-                    cmd.PrintResponse(jig_response);
-
-                    jig_res_to_app = true;
-                    return;
-                }
-                else
-                {
-                    if (retry == 1)
-                    {
-                        retry = 0;
-                        log.Info($"Jig retrying for command {cmd.PrintResponseString(jig_command)}");
-                        Jig(retry, jig_command, jig_response);
-                    }
-                    else
-                    {
-                        jig_res_to_app = false;
-                        log.Error("resp doesnt match with value after retry " + jig_res_to_app);
-                        return;
-                    }
-                }
 
             }
-
-
-
+            else log.Info("jig port is closed");
+        }
+      
+        private void FetchingSerialNumberFromScanner()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                
+                string str = hidden_gem.Text;
+                Task.Delay(20);
+                Meter1num.Text = barcode.meter_number(str);
+                log.Info($"meter number {str}");
+                hidden_gem.Text = "";
+                meter_1_data.MeterNumberFromScanner = barcode.meter_number(str);
+            });
         }
         private void DataIncoming()
         {
@@ -1213,9 +1283,11 @@ namespace Meter_screening_application
             while (true)
             {
                 byte[] buffer = new byte[11];             
-                DateTime starttime = DateTime.Now;
+               
                 int start = 0;
+
               
+                DateTime starttime = DateTime.Now;
                 while (true)
                 {
                     int bytee = jig.BytesToRead;
@@ -1242,6 +1314,11 @@ namespace Meter_screening_application
                                 app_to_be_started = true;
                                 Task.Delay(Configcmd.JIGONDELAY);
                                 log.Info("starting the test");
+                                Dispatcher.Invoke(() =>
+                                {
+                                    hidden_gem.Focus();
+                                });
+
                                 break;
                             }
                         }
@@ -1348,9 +1425,53 @@ namespace Meter_screening_application
                 log.Info("####################################################");
             }         
         }
-       
-      
-      
+
+        public void AppendDataGridToTextFile<T>(DataGrid dataGrid, ObservableCollection<T> dataCollection, string filePath)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    using (StreamWriter writer = new StreamWriter(filePath, true, Encoding.UTF8))
+                    {
+                        writer.WriteLine($"--- Test Results ({DateTime.Now}) ---");
+                        writer.WriteLine($"DataGrid: {dataGrid.Name}");
+
+
+                        foreach (var column in dataGrid.Columns)
+                        {
+                            writer.Write(column.Header + "\t");
+                        }
+                        writer.WriteLine();
+
+
+                        foreach (var item in dataCollection)
+                        {
+                            foreach (var column in dataGrid.Columns)
+                            {
+                                var binding = (column as DataGridBoundColumn)?.Binding as Binding;
+                                if (binding != null)
+                                {
+                                    var propertyName = binding.Path.Path;
+                                    var propertyValue = item.GetType().GetProperty(propertyName)?.GetValue(item);
+                                    writer.Write(propertyValue + "\t");
+                                }
+                            }
+                            writer.WriteLine();
+                        }
+                        writer.WriteLine();
+                    }
+
+
+
+                });
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
 
     }
 
